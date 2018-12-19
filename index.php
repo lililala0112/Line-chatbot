@@ -16,10 +16,12 @@
  * under the License.
  */
 
-require_once './LINEBotTiny.php';
+require_once('./LINEBotTiny.php');
 
-$channelAccessToken = '98c316f65d43243f5f999423f4e8f75e';
-$channelSecret = 'eZ050fUrqgMzuvZPKt1REYWZVsRImiFCpi3DujLJY/u9rIql9Y2CF+va7gHhtqYTbCR6LRb/Y3iqU75MKwfBDSYAmXCXhXmjM/hNuaD8DFV5d5aMTDhu06U1+ufDExGkJROWhQTG3zR8KO13y/QsrAdB04t89/1O/w1cDnyilFU=';
+
+
+$channelAccessToken = getenv('LINE_CHANNEL_ACCESSTOKEN');
+$channelSecret = getenv('LINE_CHANNEL_SECRET');
 
 $client = new LINEBotTiny($channelAccessToken, $channelSecret);
 foreach ($client->parseEvents() as $event) {
@@ -28,24 +30,25 @@ foreach ($client->parseEvents() as $event) {
             $message = $event['message'];
             switch ($message['type']) {
                 case 'text':
-                    $client->replyMessage([
+                	$m_message = $message['text'];
+                	if($m_message!="")
+                	{
+                		$client->replyMessage(array(
                         'replyToken' => $event['replyToken'],
-                        'messages' => [
-                            [
+                        'messages' => array(
+                            array(
                                 'type' => 'text',
-                                'text' => $message['text'],
-                            ],
-                        ],
-                    ]);
+                                'text' => $m_message
+                            )
+                        )
+                    	));
+                	}
                     break;
-                default:
-                    error_log('Unsupported message type: ' . $message['type']);
-                    break;
+                
             }
             break;
         default:
-            error_log('Unsupported event type: ' . $event['type']);
+            error_log("Unsupporeted event type: " . $event['type']);
             break;
     }
-}
-;
+};
